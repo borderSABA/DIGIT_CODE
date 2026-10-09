@@ -93,3 +93,22 @@
   .question-selection button{font-size:10px;padding:5px 6px}
   .memo-board{max-width:100%}
 }
+
+/* v0.1.7 */
+.bottom-controls{position:relative;transform:translateY(-8px);z-index:8}
+.lobby-time-settings{display:grid;grid-template-columns:auto minmax(120px,1fr) minmax(150px,1fr) auto;gap:10px;align-items:end;margin:14px 0;padding:12px;border:1px solid #d8d4cc;border-radius:12px;background:#faf9f5}
+.lobby-time-settings .setting-head{grid-column:1/-1;display:flex;align-items:center;gap:8px}
+.lobby-time-settings label{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.lobby-time-settings input{width:84px;padding:7px 8px;border:1px solid #aaa;border-radius:8px;background:#fff}
+.hint-inline{font-size:12px;color:#777;font-weight:500}
+.memo-reset{position:absolute;top:3px;right:4px;padding:2px 5px;border-radius:5px;font-size:9px;line-height:1.2;background:#777;color:#fff;z-index:4}
+.memo-digit-cell{padding-top:26px}
+@media(max-width:760px){.bottom-controls{transform:translateY(-5px)}.lobby-time-settings{grid-template-columns:1fr 1fr;gap:7px}.lobby-time-settings .setting-head{grid-column:1/-1}.lobby-time-settings label{font-size:12px;white-space:normal}.lobby-time-settings input{width:70px}.lobby-time-settings #applyTimeSettingsBtn{grid-column:1/-1}.memo-reset{font-size:8px;padding:2px 4px}}
+
+/* v0.1.7 */
+.parity-mark{font-size:20px;line-height:1;color:#b42318;background:#fff8;border-radius:6px;padding:0 3px}
+.digit-cell.parity-answered{background:#fffdf7}
+.compare-btn{transform:translate(-50%,-50%)}
+.compare-btn.vertical{width:30px;height:30px;padding:2px;display:grid;place-items:center}
+.rotated-compare{display:inline-block;font-size:19px;font-weight:900;transform:rotate(90deg);line-height:1}
+.line-btn.answered,.compare-btn.answered,.seg.answered{cursor:not-allowed}

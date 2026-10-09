@@ -11,7 +11,7 @@
     <section id="titleScreen" class="screen active">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span id="versionLabel">v0.1.5</span>
+        <span id="versionLabel">v0.1.7</span>
       </header>
       <div class="name-row">
         <label for="nameInput">プレイヤー名</label>
@@ -24,11 +24,17 @@
     <section id="lobbyScreen" class="screen">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span>v0.1.5</span>
+        <span>v0.1.7</span>
       </header>
       <div class="panel">
         <div class="row between"><strong id="lobbyRoomName">ROOM 1</strong><span id="lobbyStatus">待機中</span></div>
         <div id="lobbyPlayers" class="player-list"></div>
+        <div class="lobby-time-settings">
+          <div class="setting-head"><strong>時間設定</strong><span class="hint-inline">ホストのみ変更可</span></div>
+          <label>手番時間 <input id="turnTimeInput" type="number" min="5" max="300" step="5" inputmode="numeric" /> 秒</label>
+          <label>質問後シンキング <input id="thinkingTimeInput" type="number" min="0" max="120" step="5" inputmode="numeric" /> 秒</label>
+          <button id="applyTimeSettingsBtn" class="sub">時間設定を反映</button>
+        </div>
         <div class="actions">
           <button id="startBtn">ゲーム開始</button>
           <button id="leaveLobbyBtn" class="danger">退出</button>
