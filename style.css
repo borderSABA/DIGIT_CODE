@@ -414,3 +414,43 @@
     transform-origin:center center;
   }
 }
+
+
+/* v0.1.16: PC controls +20px higher; mobile vertical breathing room */
+@media(min-width:761px){
+  /* Increase the reserved control row by 20px. Its bottom stays fixed, so the
+     answer/question area begins 20px higher without transform clipping. */
+  .board-panel{grid-template-rows:minmax(0,1fr) 148px}
+  .bottom-controls{height:148px;min-height:148px;max-height:148px}
+}
+
+@media(max-width:760px){
+  /* Keep the board 5% smaller in width, but make it taller so the vertical
+     labels, seven-segment digits, and vertical compare controls have room. */
+  .question-board{
+    width:95%;
+    aspect-ratio:15/12.2;
+    padding:3.2% 2.6%;
+    column-gap:6.5%;
+    row-gap:14.5%;
+    transform:translateX(1.8%);
+  }
+
+  /* A-I sit roughly one label-height higher than before. */
+  .line-btn.ai-line{
+    transform:translate(-50%,-50%) translateY(-12px);
+  }
+
+  /* Give T-Y a distinct header band above the top segment. */
+  .digit-label{top:1%;}
+  .parity-mark{top:1%;}
+  .digit-cell .seg.a{top:25%}
+  .digit-cell .seg.f{top:31%}
+  .digit-cell .seg.b{top:31%}
+  .digit-cell .seg.g{top:57%}
+  .digit-cell .seg.e{bottom:7%}
+  .digit-cell .seg.c{bottom:7%}
+  .digit-cell .seg.d{bottom:0%}
+
+  /* The larger row gap above naturally separates W-X-Y from vertical ↕. */
+}
