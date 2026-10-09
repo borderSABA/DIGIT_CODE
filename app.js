@@ -1,7 +1,7 @@
 'use strict';
 const GAME_ID='digit-code';
 const GAME_NAME='ディジットコード';
-const APP_VERSION='v0.1.7';
+const APP_VERSION='v0.1.8';
 const MAX_PLAYERS=6;
 const WORKER_ORIGIN='https://digit-code-online.naitoryo7110.workers.dev';
 const COMMON_PLAYER_NAME_KEY='boardgamePlayerName';
@@ -37,15 +37,29 @@ async function resetRoom(roomId){if(!confirm(`ROOM ${roomNo(roomId)} を初期�
 async function joinRoom(roomId){const name=$('#nameInput').value.trim().slice(0,32);if(!name){alert('プレイヤー名を入力してください。');return}sessionStorage.setItem(NAME_DRAFT_KEY,name);const token=getToken(roomId);const u=new URL(`${WORKER_ORIGIN}/join-check`);u.searchParams.set('roomId',roomId);u.searchParams.set('name',name);u.searchParams.set('token',token);const r=await fetch(u,{cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok){alert(d.error||'ROOMへ参加できません。');return}currentRoomId=roomId;currentPlayerName=name;localStorage.setItem(ACTIVE_ROOM_KEY,roomId);localStorage.setItem(ACTIVE_NAME_KEY,name);connectWs(roomId,name,token)}
 
 function wsUrl(roomId,name,token){const u=new URL(WORKER_ORIGIN.replace(/^http/,'ws')+'/ws');u.searchParams.set('roomId',roomId);u.searchParams.set('name',name);u.searchParams.set('token',token);return u}
-function connectWs(roomId,name,token){if(ws)try{ws.close()}catch{};ws=new WebSocket(wsUrl(roomId,name,token));ws.onopen=()=>{clearTimeout(reconnectTimer)};ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='error'){alert(m.error);return}if(m.type==='state'){state=m.state;onState()}};ws.onclose=()=>{if(currentRoomId)scheduleReconnect()};ws.onerror=()=>{};showScreen('#lobbyScreen')}
-function scheduleReconnect(){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(()=>{if(currentRoomId){const n=localStorage.getItem(ACTIVE_NAME_KEY)||currentPlayerName;connectWs(currentRoomId,n,getToken(currentRoomId))}},1200)}
+function connectWs(roomId,name,token){
+  const previous=ws;
+  if(previous){
+    previous.onopen=previous.onmessage=previous.onclose=previous.onerror=null;
+    try{previous.close()}catch{}
+  }
+  const socket=new WebSocket(wsUrl(roomId,name,token));
+  ws=socket;
+  socket.onopen=()=>{if(ws!==socket)return;clearTimeout(reconnectTimer)};
+  socket.onmessage=e=>{if(ws!==socket)return;const m=JSON.parse(e.data);if(m.type==='error'){alert(m.error);return}if(m.type==='state'){state=m.state;onState()}};
+  socket.onclose=()=>{if(ws!==socket)return;if(currentRoomId)scheduleReconnect()};
+  socket.onerror=()=>{};
+}
+function scheduleReconnect(){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(()=>{if(!currentRoomId)return;if(ws&&(ws.readyState===WebSocket.OPEN||ws.readyState===WebSocket.CONNECTING))return;const n=localStorage.getItem(ACTIVE_NAME_KEY)||currentPlayerName;connectWs(currentRoomId,n,getToken(currentRoomId))},1200)}
 function send(type,payload={}){if(!ws||ws.readyState!==WebSocket.OPEN)return;ws.send(JSON.stringify({type,actionId:newActionId(type),...payload}))}
 
 function me(){return state?.players?.find(p=>p.tokenHash===getToken(currentRoomId).slice(0,8))}
 function onState(){if(!state)return;const started=state.status==='playing';if(started&&state.gameSessionId&&commonNameSavedForSession!==state.gameSessionId){saveCommonNameOnActualStart(currentPlayerName);commonNameSavedForSession=state.gameSessionId}if(state.gameSessionId&&lastGameSessionId!==state.gameSessionId){lastGameSessionId=state.gameSessionId;for(let i=0;i<6;i++)answerDraft[i]='';syncAnswerInputs()}if(state.status==='lobby'){stopTimerTicker();renderLobby();showScreen('#lobbyScreen')}else if(state.status==='playing'){renderGame();showScreen('#gameScreen')}else if(state.status==='finished'){renderGame();showScreen('#gameScreen');renderResult();$('#resultScreen').classList.add('active')}}
-function renderLobby(){$('#lobbyRoomName').textContent=`ROOM ${roomNo(currentRoomId)}`;$('#lobbyStatus').textContent='待機中';$('#lobbyPlayers').innerHTML=state.players.map((p,i)=>`<div class="player-row">${i+1}. ${esc(p.name)}${p.id===state.hostId?'（ホスト）':''}</div>`).join('');const mine=me();const isHost=!!mine&&mine.id===state.hostId;$('#startBtn').disabled=!isHost||state.players.length<1;const turnSec=Math.round(Number(state.turnTimeMs||30000)/1000);const thinkSec=Math.round(Number(state.thinkingTimeMs||10000)/1000);const turnInput=$('#turnTimeInput'),thinkInput=$('#thinkingTimeInput'),applyBtn=$('#applyTimeSettingsBtn');if(turnInput&&document.activeElement!==turnInput)turnInput.value=turnSec;if(thinkInput&&document.activeElement!==thinkInput)thinkInput.value=thinkSec;if(turnInput)turnInput.disabled=!isHost;if(thinkInput)thinkInput.disabled=!isHost;if(applyBtn)applyBtn.disabled=!isHost}
+function renderLobby(){$('#lobbyRoomName').textContent=`ROOM ${roomNo(currentRoomId)}`;$('#lobbyStatus').textContent='待機中';$('#lobbyPlayers').innerHTML=state.players.map((p,i)=>`<div class="player-row">${i+1}. ${esc(p.name)}${p.id===state.hostId?'（ホスト）':''}</div>`).join('');const mine=me();const isHost=!!mine&&mine.id===state.hostId;$('#startBtn').disabled=!isHost||state.players.length<1;const turnSec=Math.round(Number(state.turnTimeMs||30000)/1000);const thinkSec=Math.round(Number(state.thinkingTimeMs||10000)/1000);const turnInput=$('#turnTimeInput'),thinkInput=$('#thinkingTimeInput');if(turnInput&&document.activeElement!==turnInput)turnInput.value=turnSec;if(thinkInput&&document.activeElement!==thinkInput)thinkInput.value=thinkSec;if(turnInput)turnInput.disabled=!isHost;if(thinkInput)thinkInput.disabled=!isHost}
 
-function applyTimeSettings(){const mine=me();if(!mine||mine.id!==state?.hostId)return;const turnSeconds=Number($('#turnTimeInput')?.value);const thinkingSeconds=Number($('#thinkingTimeInput')?.value);if(!Number.isFinite(turnSeconds)||turnSeconds<5||turnSeconds>300){alert('手番時間は5～300秒で設定してください。');return}if(!Number.isFinite(thinkingSeconds)||thinkingSeconds<0||thinkingSeconds>120){alert('シンキングタイムは0～120秒で設定してください。');return}send('settings',{turnSeconds:Math.round(turnSeconds),thinkingSeconds:Math.round(thinkingSeconds)})}
+let settingsSendTimer=null;
+function applyTimeSettingsSilently(){const mine=me();if(!mine||mine.id!==state?.hostId||state?.status!=='lobby')return;const turnSeconds=Number($('#turnTimeInput')?.value);const thinkingSeconds=Number($('#thinkingTimeInput')?.value);if(!Number.isFinite(turnSeconds)||turnSeconds<5||turnSeconds>300)return;if(!Number.isFinite(thinkingSeconds)||thinkingSeconds<0||thinkingSeconds>120)return;const currentTurn=Math.round(Number(state.turnTimeMs||30000)/1000);const currentThink=Math.round(Number(state.thinkingTimeMs||10000)/1000);if(Math.round(turnSeconds)===currentTurn&&Math.round(thinkingSeconds)===currentThink)return;send('settings',{turnSeconds:Math.round(turnSeconds),thinkingSeconds:Math.round(thinkingSeconds)})}
+function scheduleTimeSettingsUpdate(){clearTimeout(settingsSendTimer);settingsSendTimer=setTimeout(applyTimeSettingsSilently,250)}
 
 function renderGame(){const mine=me();$('#gameRoomLabel').textContent=`ROOM ${roomNo(currentRoomId)}`;const turn=state.players.find(p=>p.id===state.turnPlayerId);const phase=state.phase||'turn';$('#turnLabel').textContent=state.status==='finished'?'答え合わせ':phase==='thinking'?'シンキングタイム':turn?`${turn.name}の手番　公開質問 ${state.totalQuestionCount||0}`:`公開質問 ${state.totalQuestionCount||0}`;$('#playerStrip').innerHTML=state.players.map(p=>`<div class="player-chip ${p.id===state.turnPlayerId&&phase==='turn'?'turn':''} ${p.answerLocked?'locked':''}"><b>${esc(p.name)}</b><br>${p.answerLocked?`🔒 回答済み　Q${p.answerQuestionCount??0}`:`未回答・質問 ${p.questionCount||0}`}</div>`).join('');if(phase==='turn'&&state.turnPlayerId===mine?.id&&lastTurnPlayerId!==mine.id&&state.status==='playing'&&!mine?.answerLocked){const pop=$('#turnPop');pop.classList.remove('hidden');setTimeout(()=>pop.classList.add('hidden'),2200)}lastTurnPlayerId=state.turnPlayerId;buildQuestionBoard();renderMemo();renderHistory();renderQuestionSelection();renderAnswerBox(mine);startTimerTicker()}
 
@@ -84,12 +98,7 @@ function renderMemo(){const pane=$('#memoPane');pane.innerHTML=`
   pane.querySelectorAll('[data-memo-reset]').forEach(btn=>btn.onclick=e=>{e.stopPropagation();resetMemoDigit(Number(btn.dataset.memoReset))})}
 function renderHistory(){const h=state.history||[];$('#historyPane').innerHTML=h.length?h.slice().reverse().map(x=>`<div class="history-item"><b>${esc(x.playerName)}</b><br>${esc(x.questionText)} → <strong>${esc(x.answerText)}</strong></div>`).join(''):'<div class="hint">まだ質問はありません。</div>'}
 
-function submitAnswer(){const mine=me();if(!mine||mine.answerLocked||state?.status!=='playing')return;syncAnswerInputs();if(answerDraft.some(v=>v==='')){alert('6か所すべて入力してください。');return}const arr=answerDraft.map(Number);const q=state?.totalQuestionCount||0;if(!confirm(`この回答を伏せて確定しますか？
-${arr.slice(0,3).join('')}
-${arr.slice(3).join('')}
-
-現在の公開質問数：${q}
-確定後は変更できず、以降の自分の手番は自動パスになります。`))return;send('answer',{digits:arr})}
+function submitAnswer(){const mine=me();if(!mine||mine.answerLocked||state?.status!=='playing')return;syncAnswerInputs();if(answerDraft.some(v=>v==='')){alert('6か所すべて入力してください。');return}send('answer',{digits:answerDraft.map(Number)})}
 function renderResult(){const ranked=[...state.players].sort((a,b)=>(a.rank??999)-(b.rank??999));const correct=ranked.filter(p=>p.isCorrect);$('#resultTitle').textContent=correct.length?'答え合わせ・順位':'全員不正解';$('#resultBody').innerHTML=`<div class="hint">正解コード</div><div class="secret-code">${(state.revealedCode||[]).map(n=>`<div>${n}</div>`).join('')}</div><div class="player-list result-ranking">${ranked.map(p=>`<div class="player-row ${p.isCorrect?'correct':'wrong'}"><b>${p.rank??'-'}位　${esc(p.name)}</b>　${p.isCorrect?'正解':'不正解'}　確定時質問 ${p.answerQuestionCount??'-'}<br><span class="submitted-code">回答：${Array.isArray(p.submittedAnswer)?`${p.submittedAnswer.slice(0,3).join('')} / ${p.submittedAnswer.slice(3).join('')}`:'-'}</span></div>`).join('')}</div>`;const mine=me();$('#rematchBtn').disabled=!mine||mine.id!==state.hostId}
 
 function leaveRoom(){if(ws&&ws.readyState===WebSocket.OPEN)send('leave');currentRoomId=null;state=null;localStorage.removeItem(ACTIVE_ROOM_KEY);localStorage.removeItem(ACTIVE_NAME_KEY);try{ws?.close()}catch{};ws=null;showScreen('#titleScreen');loadRooms()}
@@ -101,7 +110,7 @@ $('#nameInput').value=sessionStorage.getItem(NAME_DRAFT_KEY)??commonSavedName()?
 $('#nameInput').addEventListener('input',e=>sessionStorage.setItem(NAME_DRAFT_KEY,e.target.value));
 $('#refreshRoomsBtn').onclick=loadRooms;$('#roomGrid').onclick=e=>{const j=e.target.closest('[data-join-room]');const r=e.target.closest('[data-reset-room]');if(j)joinRoom(j.dataset.joinRoom);if(r)resetRoom(r.dataset.resetRoom).catch(err=>alert(err.message))};
 $('#memoOpenBtn').onclick=()=>openMobilePanel('memo');$('#historyOpenBtn').onclick=()=>openMobilePanel('history');
-$('#startBtn').onclick=()=>send('start');$('#applyTimeSettingsBtn').onclick=applyTimeSettings;$('#leaveLobbyBtn').onclick=leaveRoom;$('#leaveGameBtn').onclick=leaveRoom;$('#answerBtn').onclick=submitAnswer;$('#rematchBtn').onclick=()=>send('rematch');$('#backLobbyBtn').onclick=backLobby;
+$('#startBtn').onclick=()=>send('start');$('#turnTimeInput').addEventListener('input',scheduleTimeSettingsUpdate);$('#thinkingTimeInput').addEventListener('input',scheduleTimeSettingsUpdate);$('#leaveLobbyBtn').onclick=leaveRoom;$('#leaveGameBtn').onclick=leaveRoom;$('#answerBtn').onclick=submitAnswer;$('#rematchBtn').onclick=()=>send('rematch');$('#backLobbyBtn').onclick=backLobby;
 $('#askSelectedBtn').onclick=askSelectedQuestion;$('#cancelQuestionBtn').onclick=clearQuestionSelection;
 $$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.tab-pane').forEach(x=>x.classList.remove('active'));t.classList.add('active');$('#'+t.dataset.tab+'Pane').classList.add('active')});
 initAnswerGrid();

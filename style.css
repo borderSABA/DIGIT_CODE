@@ -112,3 +112,25 @@
 .compare-btn.vertical{width:30px;height:30px;padding:2px;display:grid;place-items:center}
 .rotated-compare{display:inline-block;font-size:19px;font-weight:900;transform:rotate(90deg);line-height:1}
 .line-btn.answered,.compare-btn.answered,.seg.answered{cursor:not-allowed}
+\n\n/* v0.1.8 */
+/* Lift the answer/question controls closer to the board. */
+.bottom-controls{transform:translateY(-22px)}
+/* Time settings apply immediately; no apply button column is needed. */
+.lobby-time-settings{grid-template-columns:minmax(150px,1fr) minmax(180px,1fr);align-items:center}
+.lobby-time-settings .setting-head{grid-column:1/-1}
+.lobby-time-settings label{justify-content:center}
+/* Give the memo more physical room and keep reset buttons away from the segments. */
+.game-layout{grid-template-columns:minmax(0,1fr) minmax(440px,560px)}
+.memo-board{max-width:480px;aspect-ratio:15/10;padding:3.5%;gap:7% 6%}
+.memo-digit-cell{padding-top:34px;min-height:0}
+.memo-digit-cell .memo-title{top:6px;left:7px}
+.memo-reset{top:6px;right:7px;padding:4px 7px;font-size:10px}
+.memo-seven{inset:23% 9% 7%}
+@media(max-width:1050px) and (min-width:761px){.game-layout{grid-template-columns:minmax(0,1fr) minmax(370px,470px)}}
+@media(max-width:760px){
+  .bottom-controls{transform:translateY(-12px)}
+  .lobby-time-settings{grid-template-columns:1fr 1fr}
+  .memo-board{max-width:100%;aspect-ratio:15/10}
+  .memo-reset{top:5px;right:5px;font-size:8px;padding:3px 5px}
+  .memo-seven{inset:24% 8% 6%}
+}
