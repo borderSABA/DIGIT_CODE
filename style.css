@@ -160,3 +160,31 @@
 /* v0.1.10: start-order shuffle + lift answer/question controls by another ~50px */
 .bottom-controls{transform:translateY(-82px)}
 @media(max-width:760px){.bottom-controls{transform:translateY(-72px)}}
+
+
+/* v0.1.11: player states / all-player turn pop / mobile board status */
+.player-chip.turn{background:#ffe1bd;border-color:#f08a24;outline:3px solid #f08a24;color:#6b3500}
+.player-chip.locked{background:#dff5e5;border-color:#4fa666;outline:2px solid #4fa666;color:#215c31}
+.bottom-controls{transform:translateY(-2px)}
+.mobile-board-timer{display:none}
+.line-btn,.compare-btn{transform:translate(-50%,-50%)}
+@media(max-width:760px){
+  .bottom-controls{transform:translateY(8px)}
+  .game-top{height:34px;justify-content:flex-end}
+  #gameRoomLabel,.turn-status{display:none!important}
+  .game-top-actions{margin-left:auto;display:flex;gap:4px}
+  .game-layout{height:calc(100vh - 86px)}
+  .board-panel{display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch}
+  .mobile-board-timer{display:block!important;justify-self:center;min-width:112px;margin:0 0 2px;padding:4px 10px;border-radius:999px;background:#fff3c4;border:1px solid #d5a800;color:#7b5a00;font-size:12px;font-weight:900;text-align:center;z-index:12}
+  .mobile-board-timer.thinking{background:#dcecff;border-color:#3f78c8;color:#235590}
+  .question-board-wrap{height:auto;min-height:0;align-items:center}
+  .question-board{width:82%;padding:2.8%;gap:7% 6%}
+  .digit-label{top:2px;left:2px;padding:1px 4px;font-size:11px}
+  .parity-mark{top:2px;right:3px;font-size:12px}
+  .line-btn{font-size:10px;padding:1px 4px;min-width:20px}
+  .compare-btn{font-size:11px;padding:1px 5px;min-width:24px}
+  .rotated-compare{font-size:16px}
+  .seg.a,.seg.g,.seg.d{left:23%;width:54%}
+  .seg.f,.seg.e{left:17%}
+  .seg.b,.seg.c{right:17%}
+}

@@ -11,7 +11,7 @@
     <section id="titleScreen" class="screen active">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span id="versionLabel">v0.1.10</span>
+        <span id="versionLabel">v0.1.11</span>
       </header>
       <div class="name-row">
         <label for="nameInput">プレイヤー名</label>
@@ -24,7 +24,7 @@
     <section id="lobbyScreen" class="screen">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span>v0.1.10</span>
+        <span>v0.1.11</span>
       </header>
       <div class="panel lobby-panel">
         <div class="row between"><strong id="lobbyRoomName">ROOM 1</strong><span id="lobbyStatus">待機中</span></div>
@@ -61,10 +61,10 @@
 
       <div class="game-layout">
         <section class="board-panel">
+          <div id="mobileBoardTimer" class="mobile-board-timer mobile-only">--</div>
           <div class="question-board-wrap">
             <div id="questionBoard" class="question-board"></div>
           </div>
-          <div id="questionHint" class="hint">A～S・T～Y・↔・各セグメント線を直接クリックすると、その場所の質問が表示されます。</div>
           <div class="bottom-controls">
             <div id="alwaysAnswer" class="always-answer">
               <div class="answer-title">解答 <span id="answerStatus">未確定</span></div>
