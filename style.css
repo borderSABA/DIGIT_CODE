@@ -203,3 +203,129 @@
   .side-panel{max-height:calc(100dvh - 103px)}
   .tab-pane{overscroll-behavior:contain}
 }
+
+/* v0.1.13: mobile fixed viewport / six-slot player area / larger board / T-Y above seven-segment */
+/* PC: move answer + question controls 50px higher from v0.1.12 */
+.bottom-controls{transform:translateY(-52px)}
+
+@media(max-width:760px){
+  /* Use the game screen itself as a three-row fixed viewport so no document scroll can occur. */
+  html,body{width:100%;height:100%;max-width:100%;max-height:100%;overflow:hidden!important;overscroll-behavior:none}
+  body{position:fixed;inset:0;touch-action:manipulation}
+  .game-screen.active{
+    display:grid!important;
+    grid-template-rows:34px 60px minmax(0,1fr);
+    width:100vw;
+    height:100svh;
+    min-height:0;
+    max-height:100svh;
+    overflow:hidden!important;
+    padding:4px;
+  }
+  @supports(height:100dvh){
+    .game-screen.active{height:100dvh;max-height:100dvh}
+  }
+  .game-top{height:34px;min-height:34px;max-height:34px}
+
+  /* Reserve the full two-row / six-player area from the start. */
+  .player-strip{
+    height:60px;
+    min-height:60px;
+    max-height:60px;
+    margin:0;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:repeat(2,27px);
+    grid-auto-rows:27px;
+    gap:4px;
+    align-content:start;
+    overflow:hidden;
+  }
+  .player-chip{
+    height:27px;
+    min-height:27px;
+    overflow:hidden;
+    padding:2px 3px;
+    font-size:10px;
+    line-height:1.05;
+  }
+  .player-chip br{display:none}
+
+  .game-layout{
+    width:100%;
+    height:auto!important;
+    min-height:0;
+    max-height:none;
+    overflow:hidden!important;
+    display:block;
+  }
+  .board-panel{
+    width:100%;
+    height:100%;
+    min-height:0;
+    max-height:100%;
+    overflow:hidden!important;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr) auto;
+    padding:2px;
+    gap:1px;
+  }
+  .mobile-board-timer{margin:0 0 1px;padding:3px 9px;font-size:11px}
+  .question-board-wrap{
+    width:100%;
+    height:100%;
+    min-height:0;
+    overflow:hidden!important;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* About 20% visually larger than the previous smartphone board: use the full width and a taller aspect. */
+  .question-board{
+    width:100%;
+    max-width:none;
+    aspect-ratio:15/11;
+    padding:2.2%;
+    column-gap:6.5%;
+    row-gap:9%;
+    border-radius:9px;
+  }
+
+  /* Put T-Y in a dedicated header zone above each seven-segment digit. */
+  .digit-label{
+    top:1.5%;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    padding:0 5px;
+    min-width:22px;
+    text-align:center;
+    font-size:12px;
+    line-height:1.25;
+    z-index:8;
+  }
+  .parity-mark{top:1.5%;right:2%;font-size:12px;z-index:8}
+
+  /* Shift the seven-segment body down, leaving clear room for T-Y. */
+  .digit-cell .seg.a,.digit-cell .seg.g,.digit-cell .seg.d{left:23%;width:54%;height:7%}
+  .digit-cell .seg.a{top:18%}
+  .digit-cell .seg.g{top:53%}
+  .digit-cell .seg.d{bottom:2%}
+  .digit-cell .seg.f,.digit-cell .seg.b,.digit-cell .seg.e,.digit-cell .seg.c{width:8%;height:29%}
+  .digit-cell .seg.f{left:17%;top:24%}
+  .digit-cell .seg.b{right:17%;top:24%}
+  .digit-cell .seg.e{left:17%;bottom:9%}
+  .digit-cell .seg.c{right:17%;bottom:9%}
+
+  /* Keep the coordinate/question labels readable around the enlarged board. */
+  .line-btn{font-size:9px;padding:1px 3px;min-width:18px;line-height:1.1}
+  .compare-btn{font-size:10px;padding:1px 4px;min-width:22px;line-height:1.1}
+  .rotated-compare{font-size:15px}
+
+  /* Move answer/question controls another 30px upward from v0.1.12. */
+  .bottom-controls{transform:translateY(-82px);z-index:12}
+
+  /* The memo overlay may scroll internally, but the game page itself never scrolls. */
+  .side-panel{overflow:hidden;max-height:calc(100svh - 92px)}
+  .tab-pane{overflow:auto;overscroll-behavior:contain}
+}
