@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>ディジットコード ONLINE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="app">
+    <section id="titleScreen" class="screen active">
+      <header class="title-head">
+        <h1>ディジットコード ONLINE</h1>
+        <span id="versionLabel">v0.1.2</span>
+      </header>
+      <div class="name-row">
+        <label for="nameInput">プレイヤー名</label>
+        <input id="nameInput" maxlength="32" autocomplete="nickname" />
+        <button id="refreshRoomsBtn" class="sub">更新</button>
+      </div>
+      <div id="roomGrid" class="room-grid"></div>
+    </section>
+
+    <section id="lobbyScreen" class="screen">
+      <header class="title-head">
+        <h1>ディジットコード ONLINE</h1>
+        <span>v0.1.2</span>
+      </header>
+      <div class="panel">
+        <div class="row between"><strong id="lobbyRoomName">ROOM 1</strong><span id="lobbyStatus">待機中</span></div>
+        <div id="lobbyPlayers" class="player-list"></div>
+        <div class="actions">
+          <button id="startBtn">ゲーム開始</button>
+          <button id="leaveLobbyBtn" class="danger">退出</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen">
+      <div class="game-top">
+        <div id="gameRoomLabel">ROOM 1</div>
+        <div class="turn-status"><div id="turnLabel">待機中</div><div id="phaseTimer" class="phase-timer">--</div></div>
+        <div class="game-top-actions"><button id="memoOpenBtn" class="sub compact mobile-only">メモ</button><button id="historyOpenBtn" class="sub compact mobile-only">履歴</button><button id="leaveGameBtn" class="danger compact">退出</button></div>
+      </div>
+
+      <div id="turnPop" class="turn-pop hidden">あなたの手番</div>
+
+      <div id="playerStrip" class="player-strip"></div>
+
+      <div class="game-layout">
+        <section class="board-panel">
+          <div class="question-board-wrap">
+            <div id="questionBoard" class="question-board"></div>
+          </div>
+          <div class="question-actions">
+            <button data-qtype="line">ライン数</button>
+            <button data-qtype="parity">奇数/偶数</button>
+            <button data-qtype="compare">大小</button>
+            <button data-qtype="segment">線の有無</button>
+          </div>
+          <div id="questionHint" class="hint">質問種類を選んでください。</div>
+          <div id="alwaysAnswer" class="always-answer">
+            <div class="answer-title">解答 <span id="answerStatus">未確定</span></div>
+            <div id="answerGridInline" class="answer-grid-inline"></div>
+            <button id="answerBtn" class="answer">回答確定</button>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <div class="tabs">
+            <button class="tab active" data-tab="memo">メモ</button>
+            <button class="tab" data-tab="history">履歴</button>
+          </div>
+          <div id="memoPane" class="tab-pane active"></div>
+          <div id="historyPane" class="tab-pane"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen result-screen">
+      <div class="result-overlay panel">
+        <h2 id="resultTitle">ゲーム終了</h2>
+        <div id="resultBody"></div>
+        <div class="actions">
+          <button id="rematchBtn">再戦</button>
+          <button id="backLobbyBtn" class="sub">ロビーへ</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
