@@ -454,3 +454,11 @@
 
   /* The larger row gap above naturally separates W-X-Y from vertical ↕. */
 }
+
+/* v0.1.17: physically move the PC answer/question row upward by 20px. */
+@media(min-width:761px){
+  .bottom-controls{
+    position:relative;
+    top:-20px;
+  }
+}
