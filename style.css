@@ -329,3 +329,88 @@
   .side-panel{overflow:hidden;max-height:calc(100svh - 92px)}
   .tab-pane{overflow:auto;overscroll-behavior:contain}
 }
+
+/* v0.1.14: mobile bottom controls must fit inside viewport; no transform-based clipping */
+@media(max-width:760px){
+  .board-panel{
+    grid-template-rows:auto minmax(0,1fr) 96px;
+    min-height:0;
+    overflow:hidden!important;
+  }
+  .bottom-controls{
+    transform:none!important;
+    height:96px;
+    min-height:96px;
+    max-height:96px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:4px;
+    align-items:stretch;
+    overflow:hidden;
+    z-index:12;
+  }
+  .always-answer,
+  .question-selection{
+    width:100%;
+    height:96px;
+    min-height:96px;
+    max-height:96px;
+    margin:0;
+    overflow:hidden;
+  }
+  .always-answer{
+    grid-template-columns:auto minmax(0,1fr);
+    grid-template-rows:30px 1fr;
+    padding:4px;
+    gap:3px 4px;
+  }
+  .answer-title{grid-column:1;grid-row:1;font-size:11px;align-self:center}
+  .answer-grid-inline{grid-column:2;grid-row:1 / span 2;gap:2px 3px}
+  .answer-grid-inline select{font-size:14px;padding:1px 0}
+  .always-answer .answer{grid-column:1;grid-row:2;font-size:10px;padding:5px 6px;align-self:stretch}
+  .question-selection{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:1fr 30px;
+    padding:4px;
+    gap:3px;
+  }
+  .question-selection.hidden{display:none!important}
+  .question-selection-text{grid-column:1/-1;grid-row:1;font-size:10px;line-height:1.15;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .question-selection #askSelectedBtn{grid-column:1;grid-row:2;font-size:10px;padding:5px 6px}
+  .question-selection #cancelQuestionBtn{grid-column:2;grid-row:2;font-size:10px;padding:5px 6px}
+  .question-board-wrap{min-height:0;overflow:hidden!important}
+}
+
+/* v0.1.15: formal PC control placement + smartphone board fine-tuning */
+@media(min-width:761px){
+  /* Reserve the control height in the grid itself instead of lifting it with transform.
+     The top edge moves roughly 50px upward without being clipped by overflow. */
+  .board-panel{
+    grid-template-rows:minmax(0,1fr) 128px;
+    overflow:hidden;
+  }
+  .bottom-controls{
+    transform:none!important;
+    height:128px;
+    min-height:128px;
+    max-height:128px;
+    align-self:stretch;
+    overflow:visible;
+  }
+  .always-answer,
+  .question-selection{
+    height:100%;
+    min-height:0;
+    max-height:none;
+  }
+}
+
+@media(max-width:760px){
+  /* 5% smaller than v0.1.14, with a slight right shift for the whole play board. */
+  .question-board{
+    width:95%;
+    transform:translateX(1.8%);
+    transform-origin:center center;
+  }
+}
