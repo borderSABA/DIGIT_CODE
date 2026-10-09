@@ -156,3 +156,7 @@
   .lobby-actions{display:grid;grid-template-columns:1fr;gap:6px}
   .lobby-actions button{width:100%;padding:8px 6px}
 }
+
+/* v0.1.10: start-order shuffle + lift answer/question controls by another ~50px */
+.bottom-controls{transform:translateY(-82px)}
+@media(max-width:760px){.bottom-controls{transform:translateY(-72px)}}
