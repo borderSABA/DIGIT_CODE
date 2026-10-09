@@ -11,7 +11,7 @@
     <section id="titleScreen" class="screen active">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span id="versionLabel">v0.1.4</span>
+        <span id="versionLabel">v0.1.5</span>
       </header>
       <div class="name-row">
         <label for="nameInput">プレイヤー名</label>
@@ -24,7 +24,7 @@
     <section id="lobbyScreen" class="screen">
       <header class="title-head">
         <h1>ディジットコード ONLINE</h1>
-        <span>v0.1.4</span>
+        <span>v0.1.5</span>
       </header>
       <div class="panel">
         <div class="row between"><strong id="lobbyRoomName">ROOM 1</strong><span id="lobbyStatus">待機中</span></div>
@@ -52,16 +52,18 @@
           <div class="question-board-wrap">
             <div id="questionBoard" class="question-board"></div>
           </div>
-          <div id="questionSelection" class="question-selection hidden">
-            <div id="questionSelectionText" class="question-selection-text"></div>
-            <button id="askSelectedBtn">質問する</button>
-            <button id="cancelQuestionBtn" class="sub">選択解除</button>
-          </div>
           <div id="questionHint" class="hint">A～S・T～Y・↔・各セグメント線を直接クリックすると、その場所の質問が表示されます。</div>
-          <div id="alwaysAnswer" class="always-answer">
-            <div class="answer-title">解答 <span id="answerStatus">未確定</span></div>
-            <div id="answerGridInline" class="answer-grid-inline"></div>
-            <button id="answerBtn" class="answer">回答確定</button>
+          <div class="bottom-controls">
+            <div id="alwaysAnswer" class="always-answer">
+              <div class="answer-title">解答 <span id="answerStatus">未確定</span></div>
+              <div id="answerGridInline" class="answer-grid-inline"></div>
+              <button id="answerBtn" class="answer">回答確定</button>
+            </div>
+            <div id="questionSelection" class="question-selection hidden">
+              <div id="questionSelectionText" class="question-selection-text"></div>
+              <button id="askSelectedBtn">質問する</button>
+              <button id="cancelQuestionBtn" class="sub">選択解除</button>
+            </div>
           </div>
         </section>
 

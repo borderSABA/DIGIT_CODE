@@ -43,3 +43,53 @@
   .question-selection-text{font-size:12px}
   .memo-board{width:min(100%,368px)}
 }
+
+/* v0.1.5 layout balance / seven-segment memo */
+.game-layout{grid-template-columns:minmax(0,1fr) minmax(400px,500px);gap:10px}
+.board-panel{grid-template-rows:minmax(0,1fr) 24px auto;gap:4px;padding:7px}
+.question-board-wrap{height:auto;min-height:0;padding:0 1.5%}
+.question-board{width:min(80%,736px);padding:3.2%;gap:8% 7%;}
+.bottom-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch;min-height:78px}
+.always-answer{width:100%;margin:0;grid-template-columns:auto minmax(150px,1fr);grid-template-rows:auto auto;padding:6px 8px;gap:5px 7px}
+.always-answer .answer-title{align-self:center}
+.answer-grid-inline{grid-column:2;grid-row:1 / span 2;grid-template-columns:repeat(3,minmax(0,1fr));align-self:stretch}
+.always-answer .answer{grid-column:1;grid-row:2;padding:7px 9px;align-self:stretch}
+.question-selection{width:100%;height:100%;margin:0;min-height:0;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr auto;padding:6px 8px;gap:5px 7px}
+.question-selection-text{grid-column:1/-1;align-self:center;padding:0 4px}
+.question-selection #askSelectedBtn{grid-column:1;grid-row:2}
+.question-selection #cancelQuestionBtn{grid-column:2;grid-row:2}
+.side-panel{padding:10px 12px}
+/* More physical room between the six digit cells so the compare button sits cleanly in the gap. */
+.compare-btn{min-width:38px;min-height:30px}
+/* 2x3 memo board drawn with editable seven-segment digits. */
+.memo-board{width:100%;max-width:410px;aspect-ratio:16/10;padding:3.2%;gap:8% 7%}
+.memo-digit-cell{padding:0;overflow:visible;min-height:0}
+.memo-digit-cell .memo-title{z-index:4}
+.memo-seven{position:absolute;inset:10% 10% 8%;}
+.memo-seg{position:absolute;padding:0;border:0;background:#d9d9d9;border-radius:999px;min-width:0;min-height:0;cursor:pointer;box-shadow:none}
+.memo-seg:hover{filter:brightness(.96)}
+.memo-seg.a,.memo-seg.g,.memo-seg.d{left:23%;width:54%;height:8%}
+.memo-seg.a{top:4%}.memo-seg.g{top:46%}.memo-seg.d{bottom:4%}
+.memo-seg.f,.memo-seg.b,.memo-seg.e,.memo-seg.c{width:8%;height:36%}
+.memo-seg.f{left:17%;top:10%}.memo-seg.b{right:17%;top:10%}.memo-seg.e{left:17%;bottom:10%}.memo-seg.c{right:17%;bottom:10%}
+.memo-seg.local-on{background:#3577db;outline:2px solid #1d55a8}
+.memo-seg.local-off{background:#eee;outline:2px dashed #c23}
+.memo-seg.local-off::after{content:"×";position:absolute;inset:-8px;display:grid;place-items:center;color:#c23;font-size:16px;font-weight:900}
+.digit-reference-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+@media(max-width:1050px) and (min-width:761px){
+  .game-layout{grid-template-columns:minmax(0,1fr) minmax(330px,420px)}
+}
+@media(max-width:760px){
+  .game-layout{display:block}
+  .board-panel{grid-template-rows:minmax(0,1fr) 18px auto;padding:3px}
+  .question-board-wrap{padding:0}
+  .question-board{width:80%;padding:2.8%;gap:7% 6%}
+  .bottom-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3px;min-height:62px}
+  .always-answer{padding:3px;grid-template-columns:auto minmax(90px,1fr);gap:2px 3px}
+  .answer-grid-inline select{font-size:13px;padding:0}
+  .always-answer .answer{font-size:10px;padding:4px 5px}
+  .question-selection{padding:3px;gap:2px 3px}
+  .question-selection-text{font-size:10px;line-height:1.1}
+  .question-selection button{font-size:10px;padding:5px 6px}
+  .memo-board{max-width:100%}
+}

@@ -1,7 +1,7 @@
 'use strict';
 const GAME_ID='digit-code';
 const GAME_NAME='ディジットコード';
-const APP_VERSION='v0.1.4';
+const APP_VERSION='v0.1.5';
 const MAX_PLAYERS=6;
 const WORKER_ORIGIN='https://digit-code-online.naitoryo7110.workers.dev';
 const COMMON_PLAYER_NAME_KEY='boardgamePlayerName';
@@ -68,12 +68,15 @@ function questionText(q){if(q.kind==='line')return `${q.label}列に線は何本
 function askSelectedQuestion(){if(!canAskQuestion()||!selectedTarget)return;const q=selectedTarget;selectedTarget=null;renderQuestionSelection();send('ask',{question:q})}
 
 function miniDigitHtml(n){const on=new Set(DIGIT_SEGS[n]||[]);return `<div class="mini-seven">${SEGMENTS.map(seg=>`<span class="mini-seg ${seg} ${on.has(seg)?'on':''}"></span>`).join('')}</div>`}
+function memoSegClass(i,s){const v=memo.segments[i]?.[s]||0;return v===1?' local-on':v===-1?' local-off':''}
+function cycleMemoSegment(i,s){const cur=memo.segments[i]?.[s]||0;memo.segments[i][s]=cur===0?1:cur===1?-1:0;renderMemo()}
+function memoDigitHtml(i){return `<div class="memo-seven">${SEGMENTS.map(seg=>`<button type="button" class="memo-seg ${seg}${memoSegClass(i,seg)}" data-memo-seg="${i}:${seg}" aria-label="${DIGIT_LABELS[i]} ${seg}"></button>`).join('')}</div>`}
 function renderMemo(){const pane=$('#memoPane');pane.innerHTML=`
   <div class="digit-reference"><div class="memo-section-title">数字の見本</div><div class="digit-reference-grid">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<div class="digit-reference-item"><div class="digit-reference-number">${n}</div>${miniDigitHtml(n)}</div>`).join('')}</div></div>
   <div class="memo-section-title">推理メモ</div>
-  <div class="memo-board">${memo.candidates.map((set,i)=>`<div class="memo-digit-cell"><div class="memo-title">${DIGIT_LABELS[i]}</div><div class="memo-candidates">${[0,1,2,3,4,5,6,7,8,9].map(n=>`<button class="candidate ${set.has(n)?'':'off'}" data-candidate="${i}:${n}">${n}</button>`).join('')}</div></div>`).join('')}</div>
-  <p class="hint">候補数字はタップで消去/復活できます。上の見本で7セグ形状を確認できます。</p>`;
-  pane.querySelectorAll('[data-candidate]').forEach(btn=>btn.onclick=()=>{const [i,n]=btn.dataset.candidate.split(':').map(Number);const set=memo.candidates[i];set.has(n)?set.delete(n):set.add(n);renderMemo()})}
+  <div class="memo-board">${memo.segments.map((_,i)=>`<div class="memo-digit-cell"><div class="memo-title">${DIGIT_LABELS[i]}</div>${memoDigitHtml(i)}</div>`).join('')}</div>
+  <p class="hint">推理メモの線をタップすると「あり → なし → 未確定」で切り替わります。上の見本で0～9の形を確認できます。</p>`;
+  pane.querySelectorAll('[data-memo-seg]').forEach(btn=>btn.onclick=()=>{const [i,seg]=btn.dataset.memoSeg.split(':');cycleMemoSegment(Number(i),seg)})}
 function renderHistory(){const h=state.history||[];$('#historyPane').innerHTML=h.length?h.slice().reverse().map(x=>`<div class="history-item"><b>${esc(x.playerName)}</b><br>${esc(x.questionText)} → <strong>${esc(x.answerText)}</strong></div>`).join(''):'<div class="hint">まだ質問はありません。</div>'}
 
 function submitAnswer(){const mine=me();if(!mine||mine.answerLocked||state?.status!=='playing')return;syncAnswerInputs();if(answerDraft.some(v=>v==='')){alert('6か所すべて入力してください。');return}const arr=answerDraft.map(Number);const q=state?.totalQuestionCount||0;if(!confirm(`この回答を伏せて確定しますか？
