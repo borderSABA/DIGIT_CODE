@@ -1,7 +1,7 @@
 'use strict';
 const GAME_ID='digit-code';
 const GAME_NAME='ディジットコード';
-const APP_VERSION='v0.1.8';
+const APP_VERSION='v0.1.9';
 const MAX_PLAYERS=6;
 const WORKER_ORIGIN='https://digit-code-online.naitoryo7110.workers.dev';
 const COMMON_PLAYER_NAME_KEY='boardgamePlayerName';

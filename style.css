@@ -114,7 +114,7 @@
 .line-btn.answered,.compare-btn.answered,.seg.answered{cursor:not-allowed}
 \n\n/* v0.1.8 */
 /* Lift the answer/question controls closer to the board. */
-.bottom-controls{transform:translateY(-22px)}
+.bottom-controls{transform:translateY(-32px)}
 /* Time settings apply immediately; no apply button column is needed. */
 .lobby-time-settings{grid-template-columns:minmax(150px,1fr) minmax(180px,1fr);align-items:center}
 .lobby-time-settings .setting-head{grid-column:1/-1}
@@ -128,9 +128,31 @@
 .memo-seven{inset:23% 9% 7%}
 @media(max-width:1050px) and (min-width:761px){.game-layout{grid-template-columns:minmax(0,1fr) minmax(370px,470px)}}
 @media(max-width:760px){
-  .bottom-controls{transform:translateY(-12px)}
+  .bottom-controls{transform:translateY(-22px)}
   .lobby-time-settings{grid-template-columns:1fr 1fr}
   .memo-board{max-width:100%;aspect-ratio:15/10}
   .memo-reset{top:5px;right:5px;font-size:8px;padding:3px 5px}
   .memo-seven{inset:24% 8% 6%}
+}
+
+
+/* v0.1.9 lobby fixed control layout */
+.lobby-panel{max-width:980px}
+.lobby-body{display:grid;grid-template-columns:minmax(190px,240px) minmax(0,1fr);gap:18px;align-items:start;margin-top:14px}
+.lobby-player-pane{border:1px solid #d8d4cc;border-radius:12px;background:#faf9f5;padding:10px;min-height:250px}
+.lobby-section-title{font-weight:900;margin-bottom:8px}
+.lobby-player-pane .player-list{display:flex;flex-direction:column;gap:7px;margin:0}
+.lobby-player-pane .player-row{margin:0;flex:0 0 auto}
+.lobby-control-pane{min-width:0}
+.lobby-control-pane .lobby-time-settings{margin:0 0 14px}
+.lobby-actions{margin-top:0}
+@media(max-width:760px){
+  .lobby-panel{margin:16px auto;padding:12px}
+  .lobby-body{grid-template-columns:minmax(130px,42%) minmax(0,1fr);gap:8px;margin-top:10px}
+  .lobby-player-pane{min-height:230px;padding:7px}
+  .lobby-player-pane .player-row{padding:7px;font-size:12px}
+  .lobby-control-pane .lobby-time-settings{grid-template-columns:1fr;margin-bottom:8px}
+  .lobby-control-pane .lobby-time-settings .setting-head{grid-column:1}
+  .lobby-actions{display:grid;grid-template-columns:1fr;gap:6px}
+  .lobby-actions button{width:100%;padding:8px 6px}
 }
