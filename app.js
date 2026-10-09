@@ -1,7 +1,7 @@
 'use strict';
 const GAME_ID='digit-code';
 const GAME_NAME='ディジットコード';
-const APP_VERSION='v0.1.11';
+const APP_VERSION='v0.1.12';
 const MAX_PLAYERS=6;
 const WORKER_ORIGIN='https://digit-code-online.naitoryo7110.workers.dev';
 const COMMON_PLAYER_NAME_KEY='boardgamePlayerName';
@@ -12,7 +12,7 @@ const ACTIVE_NAME_KEY=`${GAME_ID}-online-active-name`;
 
 const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
 let ws=null,currentRoomId=null,currentPlayerName='',state=null,reconnectTimer=null,actionSeq=0,commonNameSavedForSession=null;
-let selectedTarget=null,lastTurnPlayerId=null,timerTicker=null,lastGameSessionId=null;
+let selectedTarget=null,lastTurnPlayerId=null,timerTicker=null,lastGameSessionId=null,serverClockOffsetMs=0;
 const answerDraft=Array(6).fill('');
 const memo={candidates:Array.from({length:6},()=>new Set([0,1,2,3,4,5,6,7,8,9])),segments:Array.from({length:6},()=>({a:0,b:0,c:0,d:0,e:0,f:0,g:0}))};
 const SEGMENTS=['a','b','c','d','e','f','g'];
@@ -54,7 +54,7 @@ function scheduleReconnect(){clearTimeout(reconnectTimer);reconnectTimer=setTime
 function send(type,payload={}){if(!ws||ws.readyState!==WebSocket.OPEN)return;ws.send(JSON.stringify({type,actionId:newActionId(type),...payload}))}
 
 function me(){return state?.players?.find(p=>p.tokenHash===getToken(currentRoomId).slice(0,8))}
-function onState(){if(!state)return;const started=state.status==='playing';if(started&&state.gameSessionId&&commonNameSavedForSession!==state.gameSessionId){saveCommonNameOnActualStart(currentPlayerName);commonNameSavedForSession=state.gameSessionId}if(state.gameSessionId&&lastGameSessionId!==state.gameSessionId){lastGameSessionId=state.gameSessionId;for(let i=0;i<6;i++)answerDraft[i]='';syncAnswerInputs()}if(state.status==='lobby'){stopTimerTicker();renderLobby();showScreen('#lobbyScreen')}else if(state.status==='playing'){renderGame();showScreen('#gameScreen')}else if(state.status==='finished'){renderGame();showScreen('#gameScreen');renderResult();$('#resultScreen').classList.add('active')}}
+function onState(){if(!state)return;if(Number.isFinite(Number(state.serverNow)))serverClockOffsetMs=Number(state.serverNow)-Date.now();const started=state.status==='playing';if(started&&state.gameSessionId&&commonNameSavedForSession!==state.gameSessionId){saveCommonNameOnActualStart(currentPlayerName);commonNameSavedForSession=state.gameSessionId}if(state.gameSessionId&&lastGameSessionId!==state.gameSessionId){lastGameSessionId=state.gameSessionId;for(let i=0;i<6;i++)answerDraft[i]='';syncAnswerInputs()}if(state.status==='lobby'){stopTimerTicker();renderLobby();showScreen('#lobbyScreen')}else if(state.status==='playing'){renderGame();showScreen('#gameScreen')}else if(state.status==='finished'){renderGame();showScreen('#gameScreen');renderResult();$('#resultScreen').classList.add('active')}}
 function renderLobby(){$('#lobbyRoomName').textContent=`ROOM ${roomNo(currentRoomId)}`;$('#lobbyStatus').textContent='待機中';$('#lobbyPlayers').innerHTML=state.players.map((p,i)=>`<div class="player-row">${i+1}. ${esc(p.name)}${p.id===state.hostId?'（ホスト）':''}</div>`).join('');const mine=me();const isHost=!!mine&&mine.id===state.hostId;$('#startBtn').disabled=!isHost||state.players.length<1;const turnSec=Math.round(Number(state.turnTimeMs||30000)/1000);const thinkSec=Math.round(Number(state.thinkingTimeMs||10000)/1000);const turnInput=$('#turnTimeInput'),thinkInput=$('#thinkingTimeInput');if(turnInput&&document.activeElement!==turnInput)turnInput.value=turnSec;if(thinkInput&&document.activeElement!==thinkInput)thinkInput.value=thinkSec;if(turnInput)turnInput.disabled=!isHost;if(thinkInput)thinkInput.disabled=!isHost}
 
 let settingsSendTimer=null;
@@ -67,11 +67,13 @@ function initAnswerGrid(){const grid=$('#answerGridInline');if(!grid||grid.child
 function syncAnswerInputs(){initAnswerGrid();$$('[data-answer-digit]').forEach(sel=>{const i=Number(sel.dataset.answerDigit);if(sel.value!==String(answerDraft[i]??''))sel.value=String(answerDraft[i]??'')})}
 function renderAnswerBox(mine){syncAnswerInputs();const locked=!!mine?.answerLocked||state?.status!=='playing';$$('[data-answer-digit]').forEach(sel=>sel.disabled=locked);$('#answerBtn').disabled=!mine||locked;$('#answerBtn').textContent=mine?.answerLocked?'回答済み':'回答確定';$('#answerStatus').textContent=mine?.answerLocked?`回答済み・Q${mine.answerQuestionCount??0}`:'未確定'}
 function stopTimerTicker(){if(timerTicker){clearInterval(timerTicker);timerTicker=null}}
-function updatePhaseTimer(){const el=$('#phaseTimer'),mobile=$('#mobileBoardTimer');if(!state||state.status!=='playing'){if(el)el.textContent='--';if(mobile)mobile.textContent='--';return}const deadline=Number(state.phaseDeadline||0);const remain=Math.max(0,deadline-Date.now());const sec=Math.ceil(remain/1000);const text=state.phase==='thinking'?`シンキング ${sec}秒`:`残り ${sec}秒`;if(el){el.textContent=state.phase==='thinking'?`思考 ${sec}秒`:`手番 ${sec}秒`;el.classList.toggle('thinking',state.phase==='thinking')}if(mobile){mobile.textContent=text;mobile.classList.toggle('thinking',state.phase==='thinking')}}
+function updatePhaseTimer(){const el=$('#phaseTimer'),mobile=$('#mobileBoardTimer');if(!state||state.status!=='playing'){if(el)el.textContent='--';if(mobile)mobile.textContent='--';return}const deadline=Number(state.phaseDeadline||0);const remain=Math.max(0,deadline-serverNowMs());const sec=Math.ceil(remain/1000);const text=state.phase==='thinking'?`シンキング ${sec}秒`:`残り ${sec}秒`;if(el){el.textContent=state.phase==='thinking'?`思考 ${sec}秒`:`手番 ${sec}秒`;el.classList.toggle('thinking',state.phase==='thinking')}if(mobile){mobile.textContent=text;mobile.classList.toggle('thinking',state.phase==='thinking')}}
 function startTimerTicker(){stopTimerTicker();updatePhaseTimer();timerTicker=setInterval(updatePhaseTimer,200)}
 
+function serverNowMs(){return Date.now()+serverClockOffsetMs}
+
 const DIGIT_SEGS={0:['a','b','c','d','e','f'],1:['b','c'],2:['a','b','d','e','g'],3:['a','b','c','d','g'],4:['b','c','f','g'],5:['a','c','d','f','g'],6:['a','c','d','e','f','g'],7:['a','b','c'],8:['a','b','c','d','e','f','g'],9:['a','b','c','d','f','g']};
-function canAskQuestion(){const mine=me();return !!(mine&&state?.status==='playing'&&state.phase==='turn'&&state.turnPlayerId===mine.id&&!mine.answerLocked&&Number(state.phaseDeadline||0)>Date.now())}
+function canAskQuestion(){const mine=me();return !!(mine&&state?.status==='playing'&&state.phase==='turn'&&state.turnPlayerId===mine.id&&!mine.answerLocked&&Number(state.phaseDeadline||0)>serverNowMs())}
 function sameTarget(a,b){return JSON.stringify(a||null)===JSON.stringify(b||null)}
 function questionAnswered(q){if(!q||!state?.publicInfo)return false;if(q.kind==='line')return state.publicInfo.lines?.[q.label]!=null;if(q.kind==='parity')return state.publicInfo.parity?.[q.digit]!=null;if(q.kind==='compare')return state.publicInfo.compare?.[`${q.a}-${q.b}`]!=null;if(q.kind==='segment')return state.publicInfo.segments?.[q.digit]?.[q.segment]!=null;return false}
 function selectQuestion(target){if(!canAskQuestion()||questionAnswered(target))return;selectedTarget=target;buildQuestionBoard();renderQuestionSelection()}
